@@ -6,7 +6,9 @@ from django.contrib.auth.decorators import permission_required
 from django.views.generic.detail import DetailView
 from django import forms
 
-from .models import Book, Library, UserProfile
+from .models import Book
+from .models import Library
+from .models import UserProfile
 
 # ----------------------------
 # Authentication Views
