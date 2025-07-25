@@ -133,3 +133,14 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'book_list'
 LOGOUT_REDIRECT_URL = 'login'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+DEBUG = False  # Turn this off in production
+
+# Protect against cross-site scripting (XSS)
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Only allow cookies over HTTPS (set to True if using HTTPS)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
