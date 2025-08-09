@@ -11,13 +11,14 @@ from .serializers import BookSerializer
 class BookListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  #
 
-   filter_backends = [
-        DjangoFilterBackend,   # for precise field filtering (exact matches)
-        filters.SearchFilter,  # for text search in fields
-        filters.OrderingFilter # for ordering results
-    ]
+    filter_backends = [rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+
+    filterset_fields = ['title', 'author', 'publication_year']
+    search_fields = ['title', 'author']
+    ordering_fields = ['title', 'publication_year']
+    ordering = ['title']
+
 # Retrieve details of a book by ID - open to all users
 class BookDetailView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
