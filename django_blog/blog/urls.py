@@ -1,24 +1,25 @@
 from django.urls import path
 from .views import (
-    BasePreview, PostListView, PostDetailView,
-    PostCreateView, PostUpdateView, PostDeleteView,
-    UserLoginView, UserLogoutView, register, profile
+    BasePreview,
+    PostCreateView,
+    PostUpdateView,
+    PostDeleteView,
+    CommentCreateView,
+    CommentUpdateView,
+    CommentDeleteView,
 )
 
 urlpatterns = [
-    # Homepage
+    # Home
     path("", BasePreview.as_view(), name="home"),
 
-    # Post CRUD (checker expects singular 'post')
-    path("post/", PostListView.as_view(), name='post-list'),
-    path("post/<int:pk>/", PostDetailView.as_view(), name='post-detail'),
-    path("post/new/", PostCreateView.as_view(), name='post-create'),
-    path("post/<int:pk>/update/", PostUpdateView.as_view(), name='post-update'),
-    path("post/<int:pk>/delete/", PostDeleteView.as_view(), name='post-delete'),
+    # Post CRUD
+    path("post/new/", PostCreateView.as_view(), name="post-create"),
+    path("post/<int:pk>/update/", PostUpdateView.as_view(), name="post-update"),
+    path("post/<int:pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
 
-    # Authentication
-    path("login/", UserLoginView.as_view(), name="login"),
-    path("logout/", UserLogoutView.as_view(), name="logout"),
-    path("register/", register, name="register"),
-    path("profile/", profile, name="profile"),
+    # Comment CRUD
+    path("post/<int:post_id>/comments/new/", CommentCreateView.as_view(), name="comment-create"),
+    path("comments/<int:pk>/update/", CommentUpdateView.as_view(), name="comment-update"),
+    path("comments/<int:pk>/delete/", CommentDeleteView.as_view(), name="comment-delete"),
 ]
