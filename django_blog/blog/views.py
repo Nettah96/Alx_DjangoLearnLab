@@ -11,7 +11,7 @@ from .forms import PostForm, RegisterForm, ProfileForm
 from django.shortcuts import get_object_or_404
 from .models import Comment
 from .forms import CommentForm
-from .models import Tag
+from taggit.models import Tag
 from django.db.models import Q
 
 # -----------------------
@@ -142,22 +142,11 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         comment = self.get_object()
         return self.request.user == comment.author
 
-    def posts_by_tag(request, tag_name):
-    tag = get_object_or_404(Tag, name=tag_name)
-    posts = tag.posts.all()
-    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_by_tag.html'
+    context_object_name = 'posts'
 
-    def search_posts(request):
-    query = request.GET.get('q')
-    posts = Post.objects.all()
-    if query:
-        posts = posts.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
-    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
-    def search_posts(request):
-    query = request.GET.get('q')
-    posts = Post.objects.filter(title__icontains=query) if query else []
-    return render(request, 'search_results.html', {'posts': posts, 'query': query})
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        return Post.objects.filter(tags__slug=tag_slug)
