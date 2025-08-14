@@ -1,28 +1,78 @@
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views import View
+from .models import Post
+from .forms import PostForm, RegisterForm, ProfileForm
 
-from .forms import RegisterForm, ProfileForm
 
-# Simple pages already used in your setup
-class BasePreview(View):
-    def get(self, request):
-        return render(request, "blog/home.html")  # create this minimal template
+# -----------------------
+# Post CRUD Views
+# -----------------------
 
-class PostListView(View):
-    def get(self, request):
-        return render(request, "blog/post_list.html")
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
 
-# --- Auth views ---
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
+
+
+# -----------------------
+# Homepage Preview
+# -----------------------
+
+class BasePreview(TemplateView):
+    template_name = "blog/base.html"
+
+
+# -----------------------
+# Authentication Views
+# -----------------------
 
 class UserLoginView(LoginView):
     template_name = "blog/login.html"
 
 class UserLogoutView(LogoutView):
-    pass  # uses LOGOUT_REDIRECT_URL
+    pass  # Uses LOGOUT_REDIRECT_URL from settings.py
 
 def register(request):
     if request.method == "POST":
