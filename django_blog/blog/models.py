@@ -11,6 +11,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
+    published_date = models.DateTimeField(auto_now_add=True)
 
 # Use taggit's TaggableManager
     tags = TaggableManager(blank=True)
