@@ -150,3 +150,15 @@ class PostByTagListView(ListView):
     def get_queryset(self):
         tag_slug = self.kwargs.get('tag_slug')
         return Post.objects.filter(tags__slug=tag_slug)
+
+    def search_posts(request):
+    query = request.GET.get('q')
+    if query:
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    else:
+        posts = Post.objects.none()
+    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
