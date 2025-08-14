@@ -8,9 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Post
 from .forms import PostForm, RegisterForm, ProfileForm
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from .models import Comment
 from .forms import CommentForm
+from .models import Tag
+from django.db.models import Q
 
 # -----------------------
 # Post CRUD Views
@@ -139,3 +141,23 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.author
+
+    def posts_by_tag(request, tag_name):
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = tag.posts.all()
+    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})
+
+    def search_posts(request):
+    query = request.GET.get('q')
+    posts = Post.objects.all()
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
+    def search_posts(request):
+    query = request.GET.get('q')
+    posts = Post.objects.filter(title__icontains=query) if query else []
+    return render(request, 'search_results.html', {'posts': posts, 'query': query})
